@@ -23,6 +23,9 @@ class Tool:
         if parent is not None:
             self.args = parent.args
             self.socket = parent.socket
+            self.output_filter = ""
+            if (self.args.output_filter):
+                self.output_filter = self.args.output_filter.lower()
 
     def trend_s(self, name, value):
         if not self.args.watch:
@@ -154,63 +157,77 @@ class Tool:
             rdserial.dps.PROTECTION_OC: 'over-current',
             rdserial.dps.PROTECTION_OP: 'over-power',
         }
-        print('Setting: {:5.02f}V, {:6.03f}A ({})'.format(
-            device_state.setting_volts,
-            device_state.setting_amps,
-            ('CC' if device_state.constant_current else 'CV'),
-        ))
-        print('Output {:5}: {:5.02f}V{}, {:6.03f}A{}, {:6.02f}W{}'.format(
-            ('(on)' if device_state.output_state else '(off)'),
-            device_state.volts,
-            self.trend_s('volts', device_state.volts),
-            device_state.amps,
-            self.trend_s('amps', device_state.amps),
-            device_state.watts,
-            self.trend_s('watts', device_state.watts),
-        ))
-        print('Input: {:5.02f}V{}, protection: {}'.format(
-            device_state.input_volts,
-            self.trend_s('input_volts', device_state.input_volts),
-            protection_map[device_state.protection],
-        ))
-        print('Brightness: {}/5, key lock: {}'.format(
-            device_state.brightness,
-            'on' if device_state.key_lock else 'off',
-        ))
-        if hasattr(device_state, 'serial'):
-            print('Model: {}, firmware: {:2.01f}, serial: {}'.format(device_state.model, device_state.firmware, device_state.serial))
-        else:
-            print('Model: {}, firmware: {:2.01f}'.format(device_state.model, device_state.firmware))
-        print('Collection time: {}'.format(device_state.collection_time))
+        if (not self.output_filter or "setting" in self.output_filter):
+            print('Setting: {:5.02f}V, {:6.03f}A ({})'.format(
+                device_state.setting_volts,
+                device_state.setting_amps,
+                ('CC' if device_state.constant_current else 'CV'),
+            ))
+        if (not self.output_filter or "output" in self.output_filter):
+            print('Output {:5}: {:5.02f}V{}, {:5.03f}A{}, {:6.02f}W{}'.format(
+                ('(on)' if device_state.output_state else '(off)'),
+                device_state.volts,
+                self.trend_s('volts', device_state.volts),
+                device_state.amps,
+                self.trend_s('amps', device_state.amps),
+                device_state.watts,
+                self.trend_s('watts', device_state.watts),
+            ))
+        if (not self.output_filter or "input" in self.output_filter):
+            print('Input: {:5.02f}V{}, protection: {}'.format(
+                device_state.input_volts,
+                self.trend_s('input_volts', device_state.input_volts),
+                protection_map[device_state.protection],
+            ))
+        if (not self.output_filter or "brightness" in self.output_filter):
+            print('Brightness: {}/5, key lock: {}'.format(
+                 device_state.brightness,
+                 'on' if device_state.key_lock else 'off',
+            ))
+        if (not self.output_filter or "model" in self.output_filter):
+            if hasattr(device_state, 'serial'):
+                print('Model: {}, firmware: {:2.01f}, serial: {}'.format(device_state.model, device_state.firmware, device_state.serial))
+            else:
+                print('Model: {}, firmware: {}'.format(device_state.model, device_state.firmware))
+        if (not self.output_filter or "time" in self.output_filter):
+            print('Collection time: {}'.format(device_state.collection_time))
         if len(device_state.groups) > 0:
             print()
-        for group, device_group_state in sorted(device_state.groups.items()):
-            print('Group {}:'.format(group))
-            print('    Setting: {:5.02f}V, {:6.03f}A'.format(device_group_state.setting_volts, device_group_state.setting_amps))
-            if hasattr(device_group_state, 'cutoff_watts'):
-                print('    Cutoff: {:5.02f}V, {:6.03f}A, {:5.01f}W'.format(
-                    device_group_state.cutoff_volts,
-                    device_group_state.cutoff_amps,
-                    device_group_state.cutoff_watts,
-                ))
-            else:
-                print('    Cutoff: {:5.02f}V, {:6.03f}A'.format(
-                    device_group_state.cutoff_volts,
-                    device_group_state.cutoff_amps,
-                ))
-            if hasattr(device_group_state, 'brightness'):
-                print('    Brightness: {}/5'.format(device_group_state.brightness))
-            if hasattr(device_group_state, 'maintain_output'):
-                print('    Maintain output state: {}'.format(device_group_state.maintain_output))
-            if hasattr(device_group_state, 'poweron_output'):
-                print('    Output on power-on: {}'.format(device_group_state.poweron_output))
+        if (not self.output_filter or "group" in self.output_filter):
+            for group, device_group_state in sorted(device_state.groups.items()):
+                print('Group {}:'.format(group))
+                print('    Setting: {:5.02f}V, {:6.03f}A'.format(device_group_state.setting_volts, device_group_state.setting_amps))
+                if hasattr(device_group_state, 'cutoff_watts'):
+                    print('    Cutoff: {:5.02f}V, {:6.03f}A, {:5.01f}W'.format(
+                        device_group_state.cutoff_volts,
+                        device_group_state.cutoff_amps,
+                        device_group_state.cutoff_watts,
+                    ))
+                else:
+                    print('    Cutoff: {:5.02f}V, {:6.03f}A'.format(
+                        device_group_state.cutoff_volts,
+                        device_group_state.cutoff_amps,
+                    ))
+                if hasattr(device_group_state, 'brightness'):
+                     print('    Brightness: {}/5'.format(device_group_state.brightness))
+                if hasattr(device_group_state, 'maintain_output'):
+                     print('    Maintain output state: {}'.format(device_group_state.maintain_output))
+                if hasattr(device_group_state, 'poweron_output'):
+                     print('    Output on power-on: {}'.format(device_group_state.poweron_output))
 
     def print_json(self, device_state):
-        out = {x: getattr(device_state, x) for x in device_state.register_properties}
-        out['collection_time'] = (device_state.collection_time - datetime.datetime.fromtimestamp(0)).total_seconds()
-        out['groups'] = {}
-        for group, device_group_state in device_state.groups.items():
-            out['groups'][group] = {x: getattr(device_group_state, x) for x in device_group_state.register_properties}
+        if (self.output_filter):
+            out = {x: getattr(device_state, x) for x in device_state.register_properties if x in self.output_filter}
+        else:
+            out = {x: getattr(device_state, x) for x in device_state.register_properties}
+
+        if (not self.output_filter or "time" in self.output_filter):
+            out['collection_time'] = (device_state.collection_time - datetime.datetime.fromtimestamp(0)).total_seconds()
+        if (not self.output_filter or "group" in self.output_filter):
+            out['groups'] = {}
+            for group, device_group_state in device_state.groups.items():
+                out['groups'][group] = {x: getattr(device_group_state, x) for x in device_group_state.register_properties}
+
         print(json.dumps(out, sort_keys=True))
 
     def assemble_device_state(self):

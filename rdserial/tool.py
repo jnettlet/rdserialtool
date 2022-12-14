@@ -93,6 +93,10 @@ def parse_args(argv=None):
         help='Number of seconds between collections in watch mode',
     )
     parser.add_argument(
+        '--output-filter',
+        help='List of items to output either the line in human readable mode or each field in json mode',
+    )
+    parser.add_argument(
         '--trend-points', type=int, default=5,
         help='Number of points to remember for determining a trend in watch mode',
     )
