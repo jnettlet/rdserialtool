@@ -45,7 +45,7 @@ class DPSDeviceState:
             'amps': {
                 'description': 'Output amps',
                 'register': 0x03,
-                **_simple_int(100),
+                **_simple_int(1000),
             },
             'watts': {
                 'description': 'Output watts',
@@ -90,7 +90,7 @@ class DPSDeviceState:
             'firmware': {
                 'description': 'Device firmware',
                 'register': 0x0c,
-                **_simple_int(),
+                **_simple_int(10),
             },
             'group_loader': {
                 'description': 'Group loader',

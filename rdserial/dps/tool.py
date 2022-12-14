@@ -159,7 +159,7 @@ class Tool:
             device_state.setting_amps,
             ('CC' if device_state.constant_current else 'CV'),
         ))
-        print('Output {:5}: {:5.02f}V{}, {:5.02f}A{}, {:6.02f}W{}'.format(
+        print('Output {:5}: {:5.02f}V{}, {:6.03f}A{}, {:6.02f}W{}'.format(
             ('(on)' if device_state.output_state else '(off)'),
             device_state.volts,
             self.trend_s('volts', device_state.volts),
@@ -178,9 +178,9 @@ class Tool:
             'on' if device_state.key_lock else 'off',
         ))
         if hasattr(device_state, 'serial'):
-            print('Model: {}, firmware: {}, serial: {}'.format(device_state.model, device_state.firmware, device_state.serial))
+            print('Model: {}, firmware: {:2.01f}, serial: {}'.format(device_state.model, device_state.firmware, device_state.serial))
         else:
-            print('Model: {}, firmware: {}'.format(device_state.model, device_state.firmware))
+            print('Model: {}, firmware: {:2.01f}'.format(device_state.model, device_state.firmware))
         print('Collection time: {}'.format(device_state.collection_time))
         if len(device_state.groups) > 0:
             print()
